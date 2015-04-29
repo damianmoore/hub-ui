@@ -28,7 +28,7 @@ def main():
             elif data == 'p':   # press
                 menu.select()
             show()
-        sleep(0.1)
+        sleep(0.01)
 
 
 if __name__ == '__main__':
