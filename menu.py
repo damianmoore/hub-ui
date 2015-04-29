@@ -4,6 +4,7 @@ from screen import Screen
 
 class Menu(Screen):
     selected = [0,]
+    scroll_offset = 0
 
     def __init__(self, structure, *args, **kwargs):
         self.structure = structure
@@ -31,14 +32,22 @@ class Menu(Screen):
     def draw(self):
         self.clear()
         menu = self.get_current_menu()
+
+        # Control the scroll up and down based on the cursor position
+        if self.selected[-1] > self.scroll_offset + (len(self.buffer) - 1):
+            self.scroll_offset = self.selected[-1] - (len(self.buffer) - 1)
+        elif self.selected[-1] < self.scroll_offset:
+            self.scroll_offset = self.selected[-1]
+
+        # Draw the visible items to the buffer along with cursor
         for i, row in enumerate(self.buffer):
             try:
-                if i == self.selected[-1]:
+                if i + self.scroll_offset == self.selected[-1]:
                     line = '> '
                 else:
                     line = '  '
 
-                item = menu['items'][i]['name']
+                item = menu['items'][i + self.scroll_offset]['name']
                 try:
                     line += getattr(self.controller, item)()
                 except AttributeError:
@@ -51,6 +60,7 @@ class Menu(Screen):
         menu = self.get_current_menu()
         item = menu['items'][self.selected[-1]]
         going_back = False
+        self.scroll_offset = 0
 
         if 'on_select' in item:
             kwargs = item.get('on_select_params', {})

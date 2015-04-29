@@ -1,6 +1,11 @@
 RADIO_STATIONS = [
     ('Secret Agent', 'sa.pls'),
     ('Dubstep Beyond', 'db.pls'),
+    ('Radio 1', 'r1.pls'),
+    ('Radio 2', 'r2.pls'),
+    ('Radio 3', 'r3.pls'),
+    ('Radio 4', 'r3.pls'),
+    ('Radio 5', 'r3.pls'),
 ]
 
 
