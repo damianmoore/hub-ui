@@ -1,10 +1,12 @@
-from settings import structure
+#!/usr/bin/env python
+
+from settings import MENU_STRUCTURE
 from menu import Menu
 from utils import getch
 
 
 def main():
-    menu = Menu(structure, 20, 4)
+    menu = Menu(MENU_STRUCTURE, 20, 4, output='terminal')
 
     def show():
         for i in range(20):
@@ -17,14 +19,13 @@ def main():
     while True:
         key = kgen.next()
 
-        if key == 'B':
-            menu.down()
-            show()
-        elif key == 'A':
-            menu.up()
-            show()
-        elif key in [' ', '\n']:
-            menu.select()
+        if key:
+            if key == 'B':
+                menu.down()
+            elif key == 'A':
+                menu.up()
+            elif key in [' ', '\n']:
+                menu.select()
             show()
 
 

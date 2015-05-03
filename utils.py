@@ -1,15 +1,16 @@
-"""
-Based on: https://docs.python.org/2/faq/library.html#how-do-i-get-a-single-keypress-at-a-time
-"""
-
 from contextlib import contextmanager
 import os
-import sys
+from subprocess import Popen, PIPE
 import sys
 import time
 
 import fcntl
 import termios
+
+
+def run_cmd(cmd):
+    p = Popen(cmd.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
+    return p.communicate()[0].strip()
 
 
 @contextmanager
@@ -29,7 +30,11 @@ def stdin_setup():
         termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
         fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
 
+
 def getch(timeout=0):
+    """
+    Based on: https://docs.python.org/2/faq/library.html#how-do-i-get-a-single-keypress-at-a-time
+    """
     while True:
         c = None
         start = time.time()
