@@ -6,8 +6,9 @@ class Screen(object):
         self.clear()
 
         if output == 'lcd':
-            from lcd import lcd_init, lcd_string, lcd_byte_line, LCD_CMD
-            lcd_init()
+            import lcd
+            self.lcd = lcd
+            self.lcd.lcd_init()
 
     def clear(self):
         self.buffer = [' '*self.columns for i in range(self.rows)]
@@ -15,8 +16,8 @@ class Screen(object):
     def show(self):
         if self.output == 'lcd':
             for i, row in enumerate(self.buffer):
-                lcd_byte_line(i, LCD_CMD)
-                lcd_string(row, 1)
+                self.lcd.lcd_byte_line(i, self.lcd.LCD_CMD)
+                self.lcd.lcd_string(row, 1)
         elif self.output == 'terminal':
             print('+{}+'.format('-'*self.columns))
             for row in self.buffer:

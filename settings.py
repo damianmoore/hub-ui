@@ -1,3 +1,4 @@
+import json
 import math
 import re
 
@@ -18,33 +19,49 @@ for i in VOLUME_VALUES:
 
 
 class Controller(object):
-    radio_on = False
-    radio_station = 0
-    volume = 0
+    state = {
+        'radio_on': False,
+        'radio_station': 0,
+        'volume': 0,
+    }
 
     def __init__(self, *args, **kwargs):
         self.volume = self.volume_from_mixer()
+        self.state_read()
+
+    def state_read(self):
+        try:
+            with open('state.json') as f:
+                self.state = json.loads(f.read())
+        except IOError:
+            pass
+
+    def state_save(self):
+        with open('state.json', 'w') as f:
+            f.write(json.dumps(self.state))
 
     def radio_state(self):
-        state = self.radio_on and 'ON' or 'OFF'
+        state = self.state['radio_on'] and 'ON' or 'OFF'
         return 'State: {}'.format(state)
 
     def radio_toggle(self):
-        self.radio_on = not self.radio_on
-        if self.radio_on:
+        self.state['radio_on'] = not self.state['radio_on']
+        self.state_save()
+        if self.state['radio_on']:
             run_cmd('mpc stop')
-            self.radio_select(self.radio_station)
+            self.radio_select(self.state['radio_station'])
             run_cmd('mpc play')
         else:
             run_cmd('mpc stop')
 
     def radio_selected(self):
-        return 'Station: {}'.format(RADIO_STATIONS[self.radio_station][0])
+        return 'Station: {}'.format(RADIO_STATIONS[self.state['radio_station']][0])
 
     def radio_select(self, index):
-        self.radio_station = index
+        self.state['radio_station'] = index
+        self.state_save()
         run_cmd('mpc clear')
-        run_cmd('mpc load {}'.format(RADIO_STATIONS[self.radio_station][1]))
+        run_cmd('mpc load {}'.format(RADIO_STATIONS[self.state['radio_station']][1]))
         run_cmd('mpc play')
 
     def radio_stations(self):
