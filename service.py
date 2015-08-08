@@ -4,10 +4,11 @@ import serial
 
 from settings import MENU_STRUCTURE
 from menu import Menu
+from screen import Screen
 
 
 def main():
-    ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=0)
+    ser = serial.Serial('/dev/ttyAMA0', 7600, timeout=0)
 
     menu = Menu(MENU_STRUCTURE, 20, 4, output='lcd')
     menu.show()
@@ -26,5 +27,14 @@ def main():
         sleep(0.01)
 
 
+def cleanup():
+    Screen(20, 4, output='lcd').clear()
+
+
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cleanup()

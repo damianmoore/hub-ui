@@ -4,7 +4,7 @@ import serial
 
 
 def main():
-    ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=0)
+    ser = serial.Serial('/dev/ttyAMA0', 7600, timeout=0)
 
     while True:
         data = ser.read(255).strip()

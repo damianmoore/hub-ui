@@ -70,6 +70,11 @@ def lcd_byte(bits, mode):
     # mode = True    for character
     #                False for command
 
+    # Commands need to be sent more slowly than characters on my LCD
+    multiplier = 1
+    if not mode:
+        multiplier = 100
+
     GPIO.output(LCD_RS, mode) # RS
 
     # High bits
@@ -87,11 +92,11 @@ def lcd_byte(bits, mode):
         GPIO.output(LCD_D7, True)
 
     # Toggle 'Enable' pin
-    time.sleep(E_DELAY)
+    time.sleep(E_DELAY * multiplier)
     GPIO.output(LCD_E, True)
-    time.sleep(E_PULSE)
+    time.sleep(E_PULSE * multiplier)
     GPIO.output(LCD_E, False)
-    time.sleep(E_DELAY)
+    time.sleep(E_DELAY * multiplier)
 
     # Low bits
     GPIO.output(LCD_D4, False)
@@ -108,11 +113,11 @@ def lcd_byte(bits, mode):
         GPIO.output(LCD_D7, True)
 
     # Toggle 'Enable' pin
-    time.sleep(E_DELAY)
+    time.sleep(E_DELAY * multiplier)
     GPIO.output(LCD_E, True)
-    time.sleep(E_PULSE)
+    time.sleep(E_PULSE * multiplier)
     GPIO.output(LCD_E, False)
-    time.sleep(E_DELAY)
+    time.sleep(E_DELAY * multiplier)
 
 
 def lcd_byte_line(line, mode):

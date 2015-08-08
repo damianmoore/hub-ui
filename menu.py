@@ -25,7 +25,7 @@ class Menu(Screen):
             except AttributeError:
                 pass
 
-        if len(self.selected) > 1 and menu['items'][-1]['name'] != '< Back':
+        if len(self.selected) > 1 and menu['items'][-1]['name'] != '< Back' and menu.get('back', True):
             menu['items'].append({'name': '< Back', 'on_select': 'back'})
         return menu
 
@@ -77,15 +77,33 @@ class Menu(Screen):
         self.draw()
 
     def down(self):
-        if self.selected[-1] < len(self.get_current_menu()['items']) - 1:
-            self.selected[-1] += 1
+        menu = self.get_current_menu()
+        item = menu['items'][self.selected[-1]]
+
+        if 'on_change' in item:
+            kwargs = item.get('on_change_params', {})
+            kwargs['direction'] = 'down'
+            for method in item['on_change'].split(','):
+                getattr(self.controller, method)(**kwargs)
         else:
-            self.selected[-1] = 0
+            if self.selected[-1] < len(self.get_current_menu()['items']) - 1:
+                self.selected[-1] += 1
+            else:
+                self.selected[-1] = 0
         self.draw()
 
     def up(self):
-        if self.selected[-1] > 0:
-            self.selected[-1] -= 1
+        menu = self.get_current_menu()
+        item = menu['items'][self.selected[-1]]
+
+        if 'on_change' in item:
+            kwargs = item.get('on_change_params', {})
+            kwargs['direction'] = 'up'
+            for method in item['on_change'].split(','):
+                getattr(self.controller, method)(**kwargs)
         else:
-            self.selected[-1] = len(self.get_current_menu()['items']) - 1
+            if self.selected[-1] > 0:
+                self.selected[-1] -= 1
+            else:
+                self.selected[-1] = len(self.get_current_menu()['items']) - 1
         self.draw()

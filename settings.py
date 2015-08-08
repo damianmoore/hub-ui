@@ -24,6 +24,9 @@ class Controller(object):
 
     def __init__(self, *args, **kwargs):
         self.volume = self.volume_from_mixer()
+        mpc_state = run_cmd('mpc')
+        if '[playing]' in mpc_state:
+            self.radio_on = True
 
     def radio_state(self):
         state = self.radio_on and 'ON' or 'OFF'
@@ -38,14 +41,25 @@ class Controller(object):
         else:
             run_cmd('mpc stop')
 
-    def radio_selected(self):
+    def radio_current_station(self):
         return 'Station: {}'.format(RADIO_STATIONS[self.radio_station][0])
 
+    def radio_current_track(self):
+        title = ''
+        mpc_state = run_cmd('mpc')
+        if '[playing]' in mpc_state:
+            title = mpc_state.split('\n')[0]
+            if '[SomaFM]: ' in title:
+                title = title.split('[SomaFM]: ')[1]
+        return title
+
     def radio_select(self, index):
-        self.radio_station = index
-        run_cmd('mpc clear')
-        run_cmd('mpc load {}'.format(RADIO_STATIONS[self.radio_station][1]))
-        run_cmd('mpc play')
+        if index != self.radio_station:
+            self.radio_station = index
+            run_cmd('mpc clear')
+            run_cmd('mpc load {}'.format(RADIO_STATIONS[self.radio_station][1]))
+            if self.radio_on:
+                run_cmd('mpc play')
 
     def radio_stations(self):
         stations = []
@@ -58,9 +72,18 @@ class Controller(object):
     def volume_state(self):
         return 'Volume: {}%'.format(self.volume)
 
-    def volume_set(self, value):
-        self.volume = value
-        self.volume_to_mixer(value)
+    def volume_set(self, value=None, direction=None):
+        if value:
+            self.volume = value
+            self.volume_to_mixer(value)
+        elif direction:
+            if direction == 'down':
+                if self.volume < 100:
+                    self.volume += 5
+            elif direction == 'up':
+                if self.volume > 0:
+                    self.volume -= 5
+            self.volume_to_mixer(self.volume)
 
     def volume_to_mixer(self, value):
         value = round(math.sqrt(value)*10)
@@ -89,7 +112,8 @@ MENU_STRUCTURE = {
             'name': 'Radio',
             'items': [
                 {'name': 'radio_state', 'on_select': 'radio_toggle'},
-                {'name': 'radio_selected', 'items': 'radio_stations'},
+                {'name': 'radio_current_station', 'items': 'radio_stations'},
+                {'name': 'radio_current_track'},
             ],
         },
         {
@@ -101,7 +125,14 @@ MENU_STRUCTURE = {
         },
         {
             'name': 'volume_state',
-            'items': VOLUME_ITEMS
+            'items': [
+                {
+                    'name': 'volume_state',
+                    'on_select': 'back',
+                    'on_change': 'volume_set',
+                },
+            ],
+            'back': False,
         },
     ],
 }

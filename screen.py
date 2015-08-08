@@ -1,3 +1,6 @@
+from lcd import lcd_init, lcd_string, lcd_byte_line, LCD_CMD
+
+
 class Screen(object):
     def __init__(self, columns, rows, output='terminal'):
         self.columns = columns
@@ -6,7 +9,6 @@ class Screen(object):
         self.clear()
 
         if output == 'lcd':
-            from lcd import lcd_init, lcd_string, lcd_byte_line, LCD_CMD
             lcd_init()
 
     def clear(self):
