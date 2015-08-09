@@ -5,6 +5,7 @@ from screen import Screen
 class Menu(Screen):
     selected = [0,]
     scroll_offset = 0
+    first_display = True
 
     def __init__(self, structure, *args, **kwargs):
         self.structure = structure
@@ -33,6 +34,9 @@ class Menu(Screen):
         self.clear()
         menu = self.get_current_menu()
 
+        if self.first_display and 'item_preselect' in menu:
+            self.selected[-1] = self.controller.state.get(menu['item_preselect'], 0)
+
         # Control the scroll up and down based on the cursor position
         if self.selected[-1] > self.scroll_offset + (len(self.buffer) - 1):
             self.scroll_offset = self.selected[-1] - (len(self.buffer) - 1)
@@ -56,6 +60,8 @@ class Menu(Screen):
             except IndexError:
                 pass
 
+        self.first_display = False
+
     def select(self):
         menu = self.get_current_menu()
         item = menu['items'][self.selected[-1]]
@@ -74,6 +80,7 @@ class Menu(Screen):
             self.selected.pop()
         elif 'items' in item:
             self.selected.append(0)
+        self.first_display = True
         self.draw()
 
     def down(self):

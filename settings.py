@@ -27,10 +27,13 @@ class Controller(object):
 
     def __init__(self, *args, **kwargs):
         self.volume = self.volume_from_mixer()
+        self.state_read()
+
         mpc_state = run_cmd('mpc')
         if '[playing]' in mpc_state:
             self.state['radio_on'] = True
-        self.state_read()
+        else:
+            self.state['radio_on'] = False
 
     def state_read(self):
         try:
@@ -129,7 +132,7 @@ MENU_STRUCTURE = {
             'name': 'Radio',
             'items': [
                 {'name': 'radio_state', 'on_select': 'radio_toggle'},
-                {'name': 'radio_current_station', 'items': 'radio_stations'},
+                {'name': 'radio_current_station', 'items': 'radio_stations', 'item_preselect': 'radio_station'},
                 {'name': 'radio_current_track'},
             ],
         },
